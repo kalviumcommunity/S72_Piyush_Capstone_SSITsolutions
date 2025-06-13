@@ -74,6 +74,40 @@ app.post('/api/energy-usage', (req, res) => {
   });
 });
 
+// PUT endpoint to update energy usage data
+app.put('/api/energy-usage/:deviceId', (req, res) => {
+  const deviceId = parseInt(req.params.deviceId);
+  const { deviceName, energyUsage, carbonEmission } = req.body;
+
+  const deviceIndex = energyData.findIndex(d => d.id === deviceId);
+  if (deviceIndex === -1) {
+    return res.status(404).json({
+      success: false,
+      message: 'Device not found'
+    });
+  }
+
+  if (!deviceName || !energyUsage || !carbonEmission) {
+    return res.status(400).json({
+      success: false,
+      message: 'Missing required fields'
+    });
+  }
+
+  energyData[deviceIndex] = {
+    ...energyData[deviceIndex],
+    deviceName,
+    energyUsage,
+    carbonEmission,
+    timestamp: new Date().toISOString()
+  };
+
+  res.json({
+    success: true,
+    data: energyData[deviceIndex]
+  });
+});
+
 // GET endpoint for specific device energy usage
 app.get('/api/energy-usage/:deviceId', (req, res) => {
   const device = energyData.find(d => d.id === parseInt(req.params.deviceId));
@@ -121,6 +155,40 @@ app.post('/api/recommendations', (req, res) => {
   res.status(201).json({
     success: true,
     data: newRecommendation
+  });
+});
+
+// PUT endpoint to update recommendation
+app.put('/api/recommendations/:recommendationId', (req, res) => {
+  const recommendationId = parseInt(req.params.recommendationId);
+  const { type, description, potentialSaving, priority } = req.body;
+
+  const recommendationIndex = recommendations.findIndex(r => r.id === recommendationId);
+  if (recommendationIndex === -1) {
+    return res.status(404).json({
+      success: false,
+      message: 'Recommendation not found'
+    });
+  }
+
+  if (!type || !description || !potentialSaving || !priority) {
+    return res.status(400).json({
+      success: false,
+      message: 'Missing required fields'
+    });
+  }
+
+  recommendations[recommendationIndex] = {
+    ...recommendations[recommendationIndex],
+    type,
+    description,
+    potentialSaving,
+    priority
+  };
+
+  res.json({
+    success: true,
+    data: recommendations[recommendationIndex]
   });
 });
 
