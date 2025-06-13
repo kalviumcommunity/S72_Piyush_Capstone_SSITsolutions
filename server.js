@@ -1,6 +1,9 @@
 const express = require('express');
 const app = express();
 
+// Middleware to parse JSON bodies
+app.use(express.json());
+
 // Sample data for demonstration
 const energyData = [
   {
@@ -44,6 +47,33 @@ app.get('/api/energy-usage', (req, res) => {
   });
 });
 
+// POST endpoint to add new energy usage data
+app.post('/api/energy-usage', (req, res) => {
+  const { deviceName, energyUsage, carbonEmission } = req.body;
+
+  if (!deviceName || !energyUsage || !carbonEmission) {
+    return res.status(400).json({
+      success: false,
+      message: 'Missing required fields'
+    });
+  }
+
+  const newEnergyData = {
+    id: energyData.length + 1,
+    deviceName,
+    energyUsage,
+    timestamp: new Date().toISOString(),
+    carbonEmission
+  };
+
+  energyData.push(newEnergyData);
+
+  res.status(201).json({
+    success: true,
+    data: newEnergyData
+  });
+});
+
 // GET endpoint for specific device energy usage
 app.get('/api/energy-usage/:deviceId', (req, res) => {
   const device = energyData.find(d => d.id === parseInt(req.params.deviceId));
@@ -64,6 +94,33 @@ app.get('/api/recommendations', (req, res) => {
   res.json({
     success: true,
     data: recommendations
+  });
+});
+
+// POST endpoint to add new recommendation
+app.post('/api/recommendations', (req, res) => {
+  const { type, description, potentialSaving, priority } = req.body;
+
+  if (!type || !description || !potentialSaving || !priority) {
+    return res.status(400).json({
+      success: false,
+      message: 'Missing required fields'
+    });
+  }
+
+  const newRecommendation = {
+    id: recommendations.length + 1,
+    type,
+    description,
+    potentialSaving,
+    priority
+  };
+
+  recommendations.push(newRecommendation);
+
+  res.status(201).json({
+    success: true,
+    data: newRecommendation
   });
 });
 
